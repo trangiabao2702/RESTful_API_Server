@@ -1,7 +1,9 @@
-const authController = require("../app/controllers/auth.c");
-const authenticationMiddleware = require("../middleware/authentication");
+import { Router } from "express";
 
-const router = require("express").Router();
+import authController from "../app/controllers/auth.c.js";
+import authenticationMiddleware from "../middleware/authentication.js";
+
+const router = Router();
 
 /**
  * @swagger
@@ -35,18 +37,128 @@ const router = require("express").Router();
  *             password:
  *               type: string
  *               description: user's password
+ *           example:
+ *             name: Test Account 01
+ *             phone: "0123456789"
+ *             email: account01@gmail.com
+ *             password: account01
  *   responses:
  *     '200':
- *       description: Register successfully
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UserInfo'
+ *             type: string
+ *             example: Register successfully!
  *     '409':
- *       description: Email already exists! / Phone already exists!
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: string
+ *             example: Email/Phone already exists!
  *     '500':
- *       description: Internal server error
+ *       $ref: '#/components/responses/500'
  */
-router.post("/register", authController.registerUser);
+router.post("/register", authController.register);
 
-module.exports = router;
+/**
+ * @swagger
+ * /auth/login:
+ *  post:
+ *   summary: user login
+ *   tags: [/auth]
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             username:
+ *               type: string
+ *               description: user's name
+ *             password:
+ *               type: string
+ *               description: user's password
+ *           example:
+ *             username: account01@gmail.com
+ *             password: account01
+ *   responses:
+ *     '200':
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               accessToken:
+ *                 type: string
+ *                 description: JWT access token
+ *     '401':
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: string
+ *             example: Wrong password!
+ *     '404':
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: string
+ *             example: Username doesn't exist!
+ *     '500':
+ *       $ref: '#/components/responses/500'
+ */
+router.post("/login", authController.login);
+
+/**
+ * @swagger
+ * /auth/refresh:
+ *  post:
+ *   summary: user request a new refresh token
+ *   tags: [/auth]
+ *   security:
+ *     - cookieAuth: []
+ *   responses:
+ *     '200':
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               accessToken:
+ *                 type: string
+ *                 description: JWT access token
+ *     '401':
+ *       $ref: '#/components/responses/401'
+ *     '403':
+ *       $ref: '#/components/responses/404'
+ *     '500':
+ *       $ref: '#/components/responses/500'
+ */
+router.post("/refresh", authController.requestNewRefreshToken);
+
+/**
+ * @swagger
+ * /auth/logout:
+ *  post:
+ *   summary: user logout
+ *   tags: [/auth]
+ *   security:
+ *     - cookieAuth: []
+ *     - tokenAuth: []
+ *   responses:
+ *     '200':
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: string
+ *             example: Log out successfully!
+ *     '401':
+ *       $ref: '#/components/responses/401'
+ *     '403':
+ *       $ref: '#/components/responses/403'
+ *     '500':
+ *       $ref: '#/components/responses/500'
+ */
+router.post("/logout", authenticationMiddleware.verifyToken, authController.logout);
+
+export default router;
