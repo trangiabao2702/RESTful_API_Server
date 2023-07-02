@@ -129,7 +129,7 @@ const authController = {
         const objectId = new Types.ObjectId(userInfo.userId);
         const user = await userModel.findOne({ _id: objectId });
         const { password, ...info } = user._doc;
-        console.log(info);
+
         // delete old refresh token
         refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
 
