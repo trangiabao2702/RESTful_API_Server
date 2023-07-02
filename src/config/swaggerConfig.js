@@ -1,4 +1,4 @@
-require("dotenv").config();
+import "dotenv/config";
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -17,4 +17,4 @@ const swaggerOptions = {
   apis: ["./src/routes/*.js"],
 };
 
-module.exports = swaggerOptions;
+export default swaggerOptions;

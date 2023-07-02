@@ -1,3 +1,3 @@
 const authorizationMiddleware = {};
 
-module.exports = authorizationMiddleware;
+export default authorizationMiddleware;
